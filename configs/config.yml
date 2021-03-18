@@ -1,0 +1,9 @@
+db:
+  Host: "localhost"
+  Port: 5432
+  Username: "seidhr"
+  Name: "seidhr"
+
+ssl:
+  Fullchain: "/etc/letsencrypt/live/woolrise.ru/fullchain.pem"
+  Privkey: "/etc/letsencrypt/live/woolrise.ru/privkey.pem"
