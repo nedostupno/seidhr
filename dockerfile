@@ -11,7 +11,7 @@ COPY . .
 RUN groupadd --gid 1000 seidhr \
 && useradd -g seidhr --uid 1000 seidhr
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o seidhr ./cmd/main.go
 
 
 
