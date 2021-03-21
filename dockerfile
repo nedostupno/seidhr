@@ -21,8 +21,8 @@ COPY --from=builder /etc/passwd /etc/passwd
 
 USER seidhr
 
-COPY --from=builder /app/main /app/
+COPY --from=builder /app/seidhr /app/
 
 EXPOSE 8443
 
-ENTRYPOINT ["/app/main"] 
+ENTRYPOINT ["/app/seidhr"] 
