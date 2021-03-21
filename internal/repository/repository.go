@@ -3,38 +3,22 @@ package repository
 import "github.com/jmoiron/sqlx"
 
 type Users interface {
-	CreateUser()
-	CheckUser()
-	GetState()
-	ChangeState()
-	GetSubscriptions()
-	IsHasSubsriptions()
-	GetChatID()
-	GetSelectedMed()
-	ChangeSelectedMed()
-	IsSubToThisMed()
+	Create(tguserID int, chatID int64) error
+	Check(tguserID int) (bool, error)
+	IsHasSubsriptions(tguserID int) (bool, error)
 }
 
-type Medicoments interface {
-	IsMedExist()
-	GetTrueMedName()
-	Subscribe()
-	Unsubscribe()
-	GetSubscribers()
-	GetAvaliability()
-	ChangeAvaliability()
-	GetMedID()
-	GetMedTitle()
-}
+// type Medicaments interface {
+// }
 
 type Repository struct {
 	Users
-	Medicoments
+	// Medicaments
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		// Users:        NewUserRepo(db),
-		// Medicoments: NewMedicomentsRepo(db),
+		Users: NewUserPostgres(db),
+		// Medicoments: NewMedicaments(db),
 	}
 }

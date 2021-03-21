@@ -49,7 +49,7 @@ func (h *Handler) HandleMessage(message *tgbotapi.Message) error {
 		cmd := message.Command()
 		switch cmd {
 		case "start":
-			if err := Start(message, *h.bot); err != nil {
+			if err := Start(message, *h.bot, h); err != nil {
 				return err
 			}
 		default:
