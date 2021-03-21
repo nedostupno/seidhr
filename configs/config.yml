@@ -1,5 +1,5 @@
 db:
-  Host: "localhost"
+  Host: "woolrise.ru"
   Port: 5432
   Username: "seidhr"
   Name: "seidhr"
