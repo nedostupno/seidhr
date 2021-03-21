@@ -6,6 +6,7 @@ import (
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	_ "github.com/lib/pq"
 	"github.com/nedostupno/seidhr/internal/config"
 	"github.com/nedostupno/seidhr/internal/delivery"
 	"github.com/nedostupno/seidhr/internal/repository"
@@ -39,7 +40,9 @@ func Run() {
 	// Проверяем заполнена ли наша база значениями полученными из файла drugs.txt
 	// если нет, то заполняем.
 	db, err := repository.NewPostgreDB(cfg)
-
+	if err != nil {
+		log.Fatalf("%+v", err)
+	}
 	// Инициализируем бота
 	if bot, err := tgbotapi.NewBotAPI(cfg.Bot.APIToken); err != nil {
 		log.Fatalf("%+v", err)
