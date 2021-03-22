@@ -131,3 +131,15 @@ func (u *UserPostgres) Subscribe(tguserID int, medicamentID int) error {
 	}
 	return nil
 }
+
+// Unsubscribe - отменяет у пользьователя подписку на лекарство
+func (u *UserPostgres) Unsubscribe(tguserID int, medicamentID int) error {
+	tx := u.db.MustBegin()
+	tx.MustExec("DELETE FROM subscription WHERE tguser_id = $1 AND medicament_id = $2", tguserID, medicamentID)
+	err := tx.Commit()
+	if err != nil {
+		err := fmt.Errorf("Запрос к базе данных для отмены подписки закончился ошибкой")
+		return err
+	}
+	return nil
+}

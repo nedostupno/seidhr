@@ -49,3 +49,7 @@ func (s *UserService) GetSubscriptions(tguserID int) ([][]string, error) {
 func (s *UserService) Subscribe(tguserID int, medicamentID int) error {
 	return s.repo.Subscribe(tguserID, medicamentID)
 }
+
+func (s *UserService) Unsubscribe(tguserID int, medicamentID int) error {
+	return s.repo.Unsubscribe(tguserID, medicamentID)
+}

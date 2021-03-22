@@ -442,3 +442,52 @@ func Subscribe(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Ha
 
 	return nil
 }
+
+func Unsubscribe(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+
+	tguserID := callbackQuery.From.ID
+	chatID := callbackQuery.Message.Chat.ID
+	msgID := callbackQuery.Message.MessageID
+
+	medicamentID, err := h.services.Users.GetSelectedMed(tguserID)
+	if err != nil {
+		return err
+	}
+
+	err = h.services.Unsubscribe(tguserID, medicamentID)
+	if err != nil {
+		return err
+	}
+
+	h.services.Users.ChangeState(tguserID, "Home")
+
+	isSub, err := h.services.Users.IsHasSubsriptions(tguserID)
+	if err != nil {
+		return err
+	}
+
+	if isSub == true {
+		msg = nil
+		newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, keyboards.HomeWithSubKeyboard)
+
+		newText = tgbotapi.NewEditMessageText(chatID, msgID, "Поздравляю, подписка отменена.\n\nХотите еще что-нибудь?")
+
+		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	msg = nil
+
+	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, keyboards.HomeKeyboard)
+
+	newText = tgbotapi.NewEditMessageText(chatID, msgID, "Поздравляю, подписка отменена.\n\nХотите еще что-нибудь?")
+
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
+
+	return nil
+}

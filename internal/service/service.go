@@ -16,6 +16,7 @@ type Users interface {
 	IsSubToThisMed(tguserID int, medicamentID int) (bool, error)
 	GetSubscriptions(tguserID int) ([][]string, error)
 	Subscribe(tguserID int, medicamentID int) error
+	Unsubscribe(tguserID int, medicamentID int) error
 }
 
 type Medicaments interface {
