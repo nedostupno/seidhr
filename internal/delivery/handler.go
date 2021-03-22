@@ -112,6 +112,11 @@ func (h *Handler) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) err
 		if err := Subscribe(callbackQuery, *h.bot, h); err != nil {
 			return err
 		}
+	case "lsSub":
+		if err := ListSubscriptions(callbackQuery, *h.bot, h); err != nil {
+			return err
+		}
+
 	}
 	return nil
 }
