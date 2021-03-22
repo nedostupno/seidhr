@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strconv"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -95,4 +97,25 @@ func (u *UserPostgres) IsSubToThisMed(tguserID int, medicamentID int) (bool, err
 		return false, err
 	}
 	return isExist, nil
+}
+
+// GetSubscriptions - находит все подписки пользователя и возвращает [][]string, где
+// [[id title] [id title] [id title]]
+func (u *UserPostgres) GetSubscriptions(tguserID int) ([][]string, error) {
+	rows, err := u.db.Query("SELECT id, title from medicament INNER JOIN subscription on medicament.id=subscription.medicament_id WHERE subscription.tguser_id = $1", tguserID)
+	if err != nil {
+		return nil, err
+	}
+
+	subscriptions := [][]string{}
+
+	for rows.Next() {
+		var id int
+		var title string
+
+		rows.Scan(&id, &title)
+		subscriptions = append(subscriptions, []string{strconv.Itoa(id), title})
+		defer rows.Close()
+	}
+	return subscriptions, nil
 }

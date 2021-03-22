@@ -323,3 +323,86 @@ func SearchMedAct(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) er
 
 	return nil
 }
+
+// BackToHome - возвращает пользователя на домашнюю страницу
+func BackToHome(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+
+	tguserID := callbackQuery.From.ID
+
+	isSubscribe, err := h.services.IsHasSubsriptions(tguserID)
+	if err != nil {
+		return err
+	}
+
+	state, err := h.services.GetState(tguserID)
+	if err != nil {
+		return err
+	}
+
+	// Если пользователь просматривал подписки, нажал на лекарство и потом нажал кнопку <backToHome>,
+	// то обрабатываем другим способом и выводим ему все его подписки, вместо домашней страницы
+	if state == "ViewSubMed" {
+
+		h.services.Users.ChangeState(tguserID, "Home")
+
+		//msg, newKeyboard, newText, err := ListSubscriptions(callbackQuery)
+		//if err != nil {
+		//	return nil, nil, nil, err
+		//}
+		return nil
+	}
+
+	h.services.Users.ChangeState(tguserID, "Home")
+	// Если у пользователя нет подписок, то выдаем ему клавиатуру
+	// без кнопки просмотра подписок
+	if isSubscribe == false {
+		msg = nil
+
+		newKeyboard = tgbotapi.NewEditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, keyboards.HomeKeyboard)
+
+		newText = tgbotapi.NewEditMessageText(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, "Что бы вы хотели?")
+
+		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	msg = nil
+
+	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, keyboards.HomeWithSubKeyboard)
+
+	newText = tgbotapi.NewEditMessageText(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, "Что бы вы хотели?")
+
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ListSubscriptions - отправляет пользователю сообщение с информацией о всех его подписках
+func ListSubscriptions(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+
+	tguserID := callbackQuery.From.ID
+
+	subscriptions, err := h.services.GetSubscriptions(tguserID)
+	if err != nil {
+		return err
+	}
+
+	subKeyboard := keyboards.CreateKeyboarWithUserSubscriptions(subscriptions)
+
+	msg = nil
+
+	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, subKeyboard)
+
+	newText = tgbotapi.NewEditMessageText(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, "Ваши подписки:")
+
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -101,8 +101,11 @@ func (h *Handler) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) err
 
 	switch callbackQuery.Data {
 	case "searchMed":
-		err := SearchMed(callbackQuery, *h.bot, h)
-		if err != nil {
+		if err := SearchMed(callbackQuery, *h.bot, h); err != nil {
+			return err
+		}
+	case "backToHome":
+		if err := BackToHome(callbackQuery, *h.bot, h); err != nil {
 			return err
 		}
 	}

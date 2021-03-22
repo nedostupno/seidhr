@@ -41,3 +41,7 @@ func (s *UserService) ChangeSelectedMed(medicamentID, tguserID int) error {
 func (s *UserService) IsSubToThisMed(tguserID int, medicamentID int) (bool, error) {
 	return s.repo.IsSubToThisMed(tguserID, medicamentID)
 }
+
+func (s *UserService) GetSubscriptions(tguserID int) ([][]string, error) {
+	return s.repo.GetSubscriptions(tguserID)
+}
