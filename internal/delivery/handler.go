@@ -59,8 +59,32 @@ func (h *Handler) HandleMessage(message *tgbotapi.Message) error {
 			if err := Start(message, *h.bot, h); err != nil {
 				return err
 			}
+		case "help":
+			if err := Help(message, *h.bot); err != nil {
+				return err
+			}
 		default:
-			if err := Default(message, *h.bot); err != nil {
+			if err := DefaultCommand(message, *h.bot); err != nil {
+				return err
+			}
+		}
+	} else {
+		tguserID := message.From.ID
+
+		state, err := h.services.Users.GetState(tguserID)
+		if err != nil {
+			return err
+		}
+
+		switch state {
+		case "SearchMed":
+			if err := SearchMedAct(message, *h.bot, h); err != nil {
+				return err
+			}
+
+			return nil
+		default:
+			if err := DefaultMsg(message, *h.bot, h); err != nil {
 				return err
 			}
 		}
@@ -71,6 +95,16 @@ func (h *Handler) HandleMessage(message *tgbotapi.Message) error {
 // HandleCallbackQuery - обрабатываем сообщения,
 // которые вызваны нажатием пользователя на кнопки бота
 func (h *Handler) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) error {
-	//
+	//Перехватываем нажатие на кнопку <Проверить лекарство> и
+	// с помощью SearchMed() меняем state пользователя на "SearchMed"
+	// и предлагаем ввести название лекарства
+
+	switch callbackQuery.Data {
+	case "searchMed":
+		err := SearchMed(callbackQuery, *h.bot, h)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

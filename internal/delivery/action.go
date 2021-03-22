@@ -47,14 +47,17 @@ func Start(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) error {
 			return err
 		}
 
-		msgConf := tgbotapi.NewMessage(message.Chat.ID, "Добро пожаловать.\n\nЧто бы проверить наличие необходимого вам льготного лекарства в аптеках Санкт-Петербурга, просто нажмите на кнопку и введите его навание.\n\nВ случае, если необходимого вам лекарства сейчас нигде нет, вы можете подписаться на него и мы сообщим вам, как только оно появится.\n\nДля получения информационной справки используте команду /help Приятного использования!")
+		msgConf := tgbotapi.NewMessage(chatID, "Добро пожаловать.\n\nЧто бы проверить наличие необходимого вам льготного лекарства в аптеках Санкт-Петербурга, просто нажмите на кнопку и введите его навание.\n\nВ случае, если необходимого вам лекарства сейчас нигде нет, вы можете подписаться на него и мы сообщим вам, как только оно появится.\n\nДля получения информационной справки используте команду /help Приятного использования!")
 		msgConf.ReplyMarkup = keyboards.HomeKeyboard
 
 		msg = msgConf
 		newKeyboard = nil
 		newText = nil
 
-		SendMessage(msg, newKeyboard, newText, bot)
+		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+			return err
+		}
+
 		return nil
 	}
 
@@ -69,32 +72,245 @@ func Start(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) error {
 	// без кнопки просмотра подписок
 	if isSubscribe == false {
 
-		msgConf := tgbotapi.NewMessage(message.Chat.ID, "Что бы вы хотели?")
+		msgConf := tgbotapi.NewMessage(chatID, "Что бы вы хотели?")
 		msgConf.ReplyMarkup = keyboards.HomeKeyboard
 
 		msg = msgConf
 		newKeyboard = nil
 		newText = nil
 
-		SendMessage(msg, newKeyboard, newText, bot)
+		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+			return err
+		}
+
 		return nil
 	}
 
-	msgConf := tgbotapi.NewMessage(message.Chat.ID, "Что бы вы хотели?")
+	msgConf := tgbotapi.NewMessage(chatID, "Что бы вы хотели?")
 	msgConf.ReplyMarkup = keyboards.HomeWithSubKeyboard
 
 	msg = msgConf
 	newKeyboard = nil
 	newText = nil
 
-	SendMessage(msg, newKeyboard, newText, bot)
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func Default(message *tgbotapi.Message, bot tgbotapi.BotAPI) error {
+func DefaultCommand(message *tgbotapi.Message, bot tgbotapi.BotAPI) error {
+	chatID := message.Chat.ID
+	msgConf := tgbotapi.NewMessage(chatID, "К сожалению, я так не умею")
 
-	msgConf := tgbotapi.NewMessage(message.Chat.ID, "К сожалению, я так не умею")
+	msg = msgConf
+	newKeyboard = nil
+	newText = nil
+
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Help(message *tgbotapi.Message, bot tgbotapi.BotAPI) error {
+	chatID := message.Chat.ID
+
+	msg = tgbotapi.NewMessage(chatID, "---Необольшая справка---\n\nС помощью данного бота вы можете проверить наличие льготных лекарств в аптеках Санкт-Петербурга, а так же подписаться на необходимые вам лекарства, и получать уведомления, как только они появятся в аптеках.\n\nЧто бы подписаться на какое-либо лекарство, вам необходимо нажать на кнопку <Проверить лекарство> и ввести его название, после чего в появившемся сообщении вы увидите всю информацию о нем, а так же кнопку <Подписаться>, если вы, конечно, уже не подписаны на него\n\nПосле того, как вы подписались на ваше первое лекарство, в главном меню появится кнопка <Подписки>, нажав на которую вы увидите все ваши подписки, узнать наличие, а так же отменить подписку.")
+	newKeyboard = nil
+	newText = nil
+
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DefaultMsg(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) error {
+
+	tguserID := message.From.ID
+	chatID := message.Chat.ID
+
+	// Cмотрим состояние его подписок
+	isSubscribe, err := h.services.Users.IsHasSubsriptions(tguserID)
+	if err != nil {
+		return err
+	}
+
+	// Если у пользователя нет подписок, то выдаем ему клавиатуру
+	// без кнопки просмотра подписок
+	if isSubscribe == false {
+
+		msgConf := tgbotapi.NewMessage(chatID, "Простите, я могу обрабатывать только названия лекарств, если вы хотите хотите найти лекарство, то нажмите на кнопку **Проверить лекарство**")
+		msgConf.ReplyMarkup = keyboards.HomeKeyboard
+
+		msg = msgConf
+		newKeyboard = nil
+		newText = nil
+
+		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	msgConf := tgbotapi.NewMessage(chatID, "Простите, я могу обрабатывать только названия лекарств, если вы хотите хотите найти лекарство, то нажмите на кнопку **Проверить лекарство**")
+	msgConf.ReplyMarkup = keyboards.HomeWithSubKeyboard
+
+	msg = msgConf
+	newKeyboard = nil
+	newText = nil
+
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func SearchMed(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+	tguserID := callbackQuery.From.ID
+	chatID := callbackQuery.Message.Chat.ID
+	msgID := callbackQuery.Message.MessageID
+	state := "SearchMed"
+
+	err := h.services.Users.ChangeState(tguserID, state)
+	if err != nil {
+		return err
+	}
+
+	msg = nil
+	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, keyboards.MedSearchKeyboard)
+	newText = tgbotapi.NewEditMessageText(chatID, msgID, "Введите название лекарства:")
+
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SearchMedAct(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) error {
+	medTitle := message.Text
+	tguserID := message.From.ID
+	chatID := message.Chat.ID
+
+	// Проверяем наличие данного лекарства в базе данных льготных лекарств
+	isExist, err := h.services.Medicaments.IsExist(medTitle)
+	if err != nil {
+		return err
+	}
+
+	if isExist == false {
+		msgConf := tgbotapi.NewMessage(chatID, "Простите, но кажется вы неправильно написали название, либо это лекарство не льготное. Попробуйте еще раз:")
+		msgConf.ReplyMarkup = keyboards.MedSearchKeyboard
+
+		msg = msgConf
+		newKeyboard = nil
+		newText = nil
+
+		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	trueName, err := h.services.Medicaments.GetTrueName(medTitle)
+	if err != nil {
+		return err
+	}
+
+	// Отправляем запрос
+	medResp, err := h.services.Medicaments.ReqMedInfo(trueName)
+	if err != nil {
+		return err
+	}
+
+	// Находим id нашго лекарства
+	medicamentID, err := h.services.Medicaments.GetID(trueName)
+	if err != nil {
+		return err
+	}
+
+	err = h.services.Users.ChangeSelectedMed(medicamentID, tguserID)
+	if err != nil {
+		return err
+	}
+
+	// Проверяем подписан ли пользователь на это лекарство, что бы решить
+	// какую клавиатуру и текст необходимо отобразить
+	isSubscribe, err := h.services.Users.IsSubToThisMed(tguserID, medicamentID)
+	if err != nil {
+		return err
+	}
+
+	if isSubscribe == true {
+		// Проверяем полученный json на наличе информации об ошибке.
+		// Так как перед отправкой запроса мы проверяем наличие лекарства в нашей бд,
+		// где хранится список лекарств доступных по льготе, то вариант с неправильным написанием
+		// или вводом чего-то вообще неподходящего или несуществующего
+		// Значит, ошибка всегда будет означать то, что лекарства сейчас нет в доступе
+		isErr := h.services.Medicaments.IsErrExistInJSON(medResp)
+		if isErr == true {
+			msgConf := tgbotapi.NewMessage(chatID, "К сожалению данного лекарства сейчас нет ни в одной аптеке, но так как вы подписаны, мы уведомим вас, как только оно появится в аптеках")
+			msgConf.ReplyMarkup = keyboards.ViewMedKeyboard
+
+			msg = msgConf
+			newKeyboard = nil
+			newText = nil
+
+			if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+				return err
+			}
+
+			return nil
+		}
+
+		// Парсим json и компануем текст сообщения
+		msgText := h.services.Medicaments.ParseJSON(medResp)
+
+		msgConf := tgbotapi.NewMessage(chatID, msgText)
+		msgConf.ReplyMarkup = keyboards.ViewMedKeyboard
+
+		msg = msgConf
+		newKeyboard = nil
+		newText = nil
+
+		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+			return err
+		}
+
+		return nil
+
+	}
+
+	// Опять Проверяем полученный json на наличе информации об ошибке
+	isErr := h.services.Medicaments.IsErrExistInJSON(medResp)
+	if isErr == true {
+
+		msgConf := tgbotapi.NewMessage(chatID, "К сожалению данного лекарства сейчас нет ни в одной аптеке, но если хотите, вы можете подписаться и мы уведомим вас, как только оно появится")
+		msgConf.ReplyMarkup = keyboards.ViewMedWithSubKeyboard
+
+		msg = msgConf
+		newKeyboard = nil
+		newText = nil
+
+		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	// Парсим json и компануем текст сообщения
+	msgText := h.services.Medicaments.ParseJSON(medResp)
+
+	msgConf := tgbotapi.NewMessage(chatID, msgText)
+	msgConf.ReplyMarkup = keyboards.ViewMedWithSubKeyboard
 
 	msg = msgConf
 	newKeyboard = nil

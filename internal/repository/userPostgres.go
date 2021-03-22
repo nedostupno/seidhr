@@ -44,3 +44,55 @@ func (u *UserPostgres) IsHasSubsriptions(tguserID int) (bool, error) {
 	}
 	return isExist, nil
 }
+
+// GetState - проверяет состояние пользователя
+func (u *UserPostgres) GetState(tguserID int) (string, error) {
+	var state string
+	err := u.db.QueryRow("SELECT state from tguser where id=$1", tguserID).Scan(&state)
+	if err != nil {
+		return "", err
+	}
+	return state, nil
+}
+
+// ChangeState - изменяет состояние пользователя
+func (u *UserPostgres) ChangeState(tguserID int, state string) error {
+	tx := u.db.MustBegin()
+	tx.MustExec("UPDATE tguser SET state=$1 where id=$2", state, tguserID)
+	err := tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetSelectedMed - получает id лекарства выбранного пользователем в данный момент
+func (u *UserPostgres) GetSelectedMed(tguserID int) (int, error) {
+	var medicamentID int
+	err := u.db.QueryRow("SELECT selected_med FROM tguser WHERE id = $1", tguserID).Scan(&medicamentID)
+	if err != nil {
+		return 0, err
+	}
+	return medicamentID, nil
+}
+
+// ChangeSelectedMed - меняет выбранное пользователем лекарство
+func (u *UserPostgres) ChangeSelectedMed(medicamentID, tguserID int) error {
+	tx := u.db.MustBegin()
+	tx.MustExec("UPDATE tguser SET selected_med = $1 WHERE id = $2", medicamentID, tguserID)
+	err := tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// IsSubToThisMed - проверяет подписан ли пользователь на данное лекарство
+func (u *UserPostgres) IsSubToThisMed(tguserID int, medicamentID int) (bool, error) {
+	var isExist bool
+	err := u.db.QueryRow("SELECT exists (SELECT 1 FROM subscription WHERE tguser_id=$1 AND medicament_id=$2)", tguserID, medicamentID).Scan(&isExist)
+	if err != nil {
+		return false, err
+	}
+	return isExist, nil
+}
