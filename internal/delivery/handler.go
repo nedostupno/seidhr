@@ -108,6 +108,10 @@ func (h *Handler) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) err
 		if err := BackToHome(callbackQuery, *h.bot, h); err != nil {
 			return err
 		}
+	case "subscribe":
+		if err := Subscribe(callbackQuery, *h.bot, h); err != nil {
+			return err
+		}
 	}
 	return nil
 }

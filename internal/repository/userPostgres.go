@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/jmoiron/sqlx"
@@ -118,4 +119,15 @@ func (u *UserPostgres) GetSubscriptions(tguserID int) ([][]string, error) {
 		defer rows.Close()
 	}
 	return subscriptions, nil
+}
+
+func (u *UserPostgres) Subscribe(tguserID int, medicamentID int) error {
+	tx := u.db.MustBegin()
+	tx.MustExec("INSERT INTO subscription (tguser_id, medicament_id) VALUES ($1, $2)", tguserID, medicamentID)
+	err := tx.Commit()
+	if err != nil {
+		err := fmt.Errorf("Запрос к базе данных для оформления пописки закончился ошибкой")
+		return err
+	}
+	return nil
 }

@@ -45,3 +45,7 @@ func (s *UserService) IsSubToThisMed(tguserID int, medicamentID int) (bool, erro
 func (s *UserService) GetSubscriptions(tguserID int) ([][]string, error) {
 	return s.repo.GetSubscriptions(tguserID)
 }
+
+func (s *UserService) Subscribe(tguserID int, medicamentID int) error {
+	return s.repo.Subscribe(tguserID, medicamentID)
+}

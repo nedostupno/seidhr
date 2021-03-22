@@ -328,6 +328,8 @@ func SearchMedAct(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) er
 func BackToHome(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
 
 	tguserID := callbackQuery.From.ID
+	chatID := callbackQuery.Message.Chat.ID
+	msgID := callbackQuery.Message.MessageID
 
 	isSubscribe, err := h.services.IsHasSubsriptions(tguserID)
 	if err != nil {
@@ -358,9 +360,9 @@ func BackToHome(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *H
 	if isSubscribe == false {
 		msg = nil
 
-		newKeyboard = tgbotapi.NewEditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, keyboards.HomeKeyboard)
+		newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, keyboards.HomeKeyboard)
 
-		newText = tgbotapi.NewEditMessageText(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, "Что бы вы хотели?")
+		newText = tgbotapi.NewEditMessageText(chatID, msgID, "Что бы вы хотели?")
 
 		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
 			return err
@@ -371,9 +373,9 @@ func BackToHome(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *H
 
 	msg = nil
 
-	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, keyboards.HomeWithSubKeyboard)
+	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, keyboards.HomeWithSubKeyboard)
 
-	newText = tgbotapi.NewEditMessageText(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, "Что бы вы хотели?")
+	newText = tgbotapi.NewEditMessageText(chatID, msgID, "Что бы вы хотели?")
 
 	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
 		return err
@@ -386,6 +388,8 @@ func BackToHome(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *H
 func ListSubscriptions(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
 
 	tguserID := callbackQuery.From.ID
+	chatID := callbackQuery.Message.Chat.ID
+	msgID := callbackQuery.Message.MessageID
 
 	subscriptions, err := h.services.GetSubscriptions(tguserID)
 	if err != nil {
@@ -396,9 +400,41 @@ func ListSubscriptions(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAP
 
 	msg = nil
 
-	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, subKeyboard)
+	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, subKeyboard)
 
-	newText = tgbotapi.NewEditMessageText(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, "Ваши подписки:")
+	newText = tgbotapi.NewEditMessageText(chatID, msgID, "Ваши подписки:")
+
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Subscribe - оформляет подписку на лекарство для данного пользователя
+func Subscribe(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+
+	tguserID := callbackQuery.From.ID
+	chatID := callbackQuery.Message.Chat.ID
+	msgID := callbackQuery.Message.MessageID
+
+	medicamentID, err := h.services.Users.GetSelectedMed(tguserID)
+	if err != nil {
+		return err
+	}
+
+	err = h.services.Users.Subscribe(tguserID, medicamentID)
+	if err != nil {
+		return err
+	}
+
+	h.services.Users.ChangeState(tguserID, "Home")
+
+	msg = nil
+
+	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, keyboards.HomeWithSubKeyboard)
+
+	newText = tgbotapi.NewEditMessageText(chatID, msgID, "Поздравляю, подписка на лекарство успешно оформлена. Теперь вы первым узнаете о появлении данного лекарства в аптеках нашего города.\n\nХотите еще что-нибудь?")
 
 	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
 		return err
