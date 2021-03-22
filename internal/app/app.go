@@ -37,12 +37,11 @@ func Run() {
 	}
 
 	// Инициализируем Базу данных
-	// Проверяем заполнена ли наша база значениями полученными из файла drugs.txt
-	// если нет, то заполняем.
 	db, err := repository.NewPostgreDB(cfg)
 	if err != nil {
 		log.Fatalf("%+v", err)
 	}
+
 	// Инициализируем бота
 	if bot, err := tgbotapi.NewBotAPI(cfg.Bot.APIToken); err != nil {
 		log.Fatalf("%+v", err)
@@ -89,6 +88,26 @@ func Run() {
 		repos := repository.NewRepository(db)
 		services := service.NewService(repos)
 		handlers := delivery.NewHandler(services, bot)
+
+		// Проверяем заполнена ли наша база значениями полученными из файла drugs.txt
+		// если нет, то заполняем.
+		isExist, err := services.Medicaments.IsMedListExist()
+		if err != nil {
+			log.Fatalf("%+v", err)
+		}
+
+		if isExist == false {
+
+			meds, err := services.Medicaments.ReadFileWithMeds()
+			if err != nil {
+				log.Fatalf("%+v", err)
+			}
+
+			err = services.Medicaments.InitMedList(meds)
+			if err != nil {
+				log.Fatalf("%+v", err)
+			}
+		}
 
 		// Вызываем метод объекта Handler, с помощью которого мы обрабатываем
 		// сообщения, поступающие в канал updates

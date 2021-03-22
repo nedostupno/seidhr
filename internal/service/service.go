@@ -8,10 +8,20 @@ type Users interface {
 	IsHasSubsriptions(tguserID int) (bool, error)
 }
 
+type Medicaments interface {
+	InitMedList(medLines []string) error
+	IsMedListExist() (bool, error)
+	ReadFileWithMeds() ([]string, error)
+}
+
 type Service struct {
 	Users
+	Medicaments
 }
 
 func NewService(repo *repository.Repository) *Service {
-	return &Service{Users: NewUserService(repo.Users)}
+	return &Service{
+		Users:       NewUserService(repo.Users),
+		Medicaments: NewMedService(repo.Medicaments),
+	}
 }

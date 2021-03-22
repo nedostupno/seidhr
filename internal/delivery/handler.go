@@ -45,6 +45,13 @@ func (h *Handler) HandleUpdate(updates tgbotapi.UpdatesChannel) error {
 
 // HandleMessage - обрабатывем объекты обычных сообщений
 func (h *Handler) HandleMessage(message *tgbotapi.Message) error {
+
+	// Если нам пришла команда, то сверяем ее с доступными командами,
+	// если ни одного совпадения нет, то отвечаем Default
+	// -------------------------------------------------------------
+	// Если это не команда, то значит нам пришло обычное сообщение
+	// Данный бот в качестве обычных сообщений принимает только названия лекарств,
+	// Поэтому выполняем проверку лекарства
 	if message.IsCommand() {
 		cmd := message.Command()
 		switch cmd {

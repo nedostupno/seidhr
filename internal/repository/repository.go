@@ -8,17 +8,19 @@ type Users interface {
 	IsHasSubsriptions(tguserID int) (bool, error)
 }
 
-// type Medicaments interface {
-// }
+type Medicaments interface {
+	InitMedList(medLines []string) error
+	IsMedListExist() (bool, error)
+}
 
 type Repository struct {
 	Users
-	// Medicaments
+	Medicaments
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		Users: NewUserPostgres(db),
-		// Medicoments: NewMedicaments(db),
+		Users:       NewUserPostgres(db),
+		Medicaments: NewMedPostgres(db),
 	}
 }
