@@ -18,16 +18,17 @@ func SendMessage(msg tgbotapi.Chattable, newKeyboard tgbotapi.Chattable, newText
 			return err
 		}
 	}
-	if newKeyboard != nil {
-		if _, err := bot.Send(newKeyboard); err != nil {
-			return err
-		}
-	}
 	if newText != nil {
 		if _, err := bot.Send(newText); err != nil {
 			return err
 		}
 	}
+	if newKeyboard != nil {
+		if _, err := bot.Send(newKeyboard); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
