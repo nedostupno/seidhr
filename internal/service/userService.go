@@ -53,3 +53,7 @@ func (s *UserService) Subscribe(tguserID int, medicamentID int) error {
 func (s *UserService) Unsubscribe(tguserID int, medicamentID int) error {
 	return s.repo.Unsubscribe(tguserID, medicamentID)
 }
+
+func (s *UserService) GetChatID(tguserID int) (int, error) {
+	return s.repo.GetChatID(tguserID)
+}

@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"log"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -554,4 +555,86 @@ func InterceptMedicament(callbackQuery *tgbotapi.CallbackQuery, bot *tgbotapi.Bo
 	}
 
 	return nil
+}
+
+// CyclicMedSearch - Проверяет список подписок, после чего опрашивает Гос Услуги
+// на наличие эти лекарств в городе. Полученный результат сравнивается с
+// состоянием в базе данных. если значение Avaliability сменяется на true,
+// то пользователю отправляется уведомление.
+func CyclicMedSearch(bot *tgbotapi.BotAPI, h *Handler, c chan bool) {
+
+	select {
+	case _ = <-c:
+
+		// Проверяем наличе хотя бы одной подписки, дабы избежать ошибок, связанных
+		// с попыткой чтения не существующей информации
+		anySub, err := h.services.Medicaments.AreTheAnySubscriptions()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if anySub == true {
+
+			medsID, err := h.services.Medicaments.GetAllMedicamentsWithSub()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			for _, id := range medsID {
+				title, err := h.services.Medicaments.GetTitle(id)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				medResp, err := h.services.Medicaments.ReqMedInfo(title)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				isErr := h.services.Medicaments.IsErrExistInJSON(medResp)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				availabillity, err := h.services.Medicaments.GetAvailability(id)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				// Наличие ошибки говорит нам о том, что лекарства в данный момент нигде нет
+				// Значит, мы проверяем значение Availability в базе данных
+				if isErr == true && availabillity == true {
+					h.services.Medicaments.ChangeAvailability(id, false)
+					// Ставим заметку о дате, когда лекарство закончилось в городе
+				}
+
+				if isErr == false && availabillity == false {
+					h.services.Medicaments.ChangeAvailability(id, true)
+					// Теперь нужно уведомить всех пользователей,
+					// которые подписаны на данное лекарство
+					users, err := h.services.Medicaments.GetSubscribers(id)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					for _, user := range users {
+						chatID, err := h.services.Users.GetChatID(user)
+						if err != nil {
+							log.Fatal(err)
+						}
+
+						msgText := "Ура! Ваше лекарство появилось в аптеках!\n\n" + h.services.Medicaments.ParseJSON(medResp)
+
+						msgConf := tgbotapi.NewMessage(int64(chatID), msgText)
+						msgConf.ReplyMarkup = keyboards.ViewMedKeyboard
+
+						if _, err := bot.Send(msgConf); err != nil {
+							log.Fatal(err)
+						}
+					}
+				}
+			}
+		}
+	}
+
 }

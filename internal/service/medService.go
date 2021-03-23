@@ -46,6 +46,26 @@ func (s *MedService) IsMedListExist() (bool, error) {
 	return s.repo.IsMedListExist()
 }
 
+func (s *MedService) AreTheAnySubscriptions() (bool, error) {
+	return s.repo.AreTheAnySubscriptions()
+}
+
+func (s *MedService) GetAllMedicamentsWithSub() ([]int, error) {
+	return s.repo.GetAllMedicamentsWithSub()
+}
+
+func (s *MedService) GetAvailability(medicamentID int) (bool, error) {
+	return s.repo.GetAvailability(medicamentID)
+}
+
+func (s *MedService) ChangeAvailability(medicamentID int, value bool) error {
+	return s.repo.ChangeAvailability(medicamentID, value)
+}
+
+func (s *MedService) GetSubscribers(medicamentID int) ([]int, error) {
+	return s.repo.GetSubscribers(medicamentID)
+}
+
 // ReadFileWithMeds - считывает данные из файла drugs.txt и подготавливает их для
 // передачи в функцию InitMedList, котрая заполнит ими базу данных
 func (s *MedService) ReadFileWithMeds() ([]string, error) {

@@ -10,6 +10,7 @@ type Users interface {
 	Check(tguserID int) (bool, error)
 	GetState(tguserID int) (string, error)
 	ChangeState(tguserID int, state string) error
+	GetChatID(tguserID int) (int, error)
 	IsHasSubsriptions(tguserID int) (bool, error)
 	GetSelectedMed(tguserID int) (int, error)
 	ChangeSelectedMed(medicamentID, tguserID int) error
@@ -30,6 +31,11 @@ type Medicaments interface {
 	ReqMedInfo(medTitle string) (model.Jsn, error)
 	ParseJSON(j model.Jsn) string
 	IsErrExistInJSON(j model.Jsn) bool
+	AreTheAnySubscriptions() (bool, error)
+	GetAllMedicamentsWithSub() ([]int, error)
+	GetAvailability(medicamentID int) (bool, error)
+	ChangeAvailability(medicamentID int, value bool) error
+	GetSubscribers(medicamentID int) ([]int, error)
 }
 
 type Service struct {

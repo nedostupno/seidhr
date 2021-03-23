@@ -69,6 +69,16 @@ func (u *UserPostgres) ChangeState(tguserID int, state string) error {
 	return nil
 }
 
+// GetChatID - находит пользователя и возвращает его chatID
+func (u *UserPostgres) GetChatID(tguserID int) (int, error) {
+	var chatID int
+	err := u.db.QueryRow("SELECT chat_id FROM tguser WHERE id = $1", tguserID).Scan(&chatID)
+	if err != nil {
+		return 0, err
+	}
+	return chatID, nil
+}
+
 // GetSelectedMed - получает id лекарства выбранного пользователем в данный момент
 func (u *UserPostgres) GetSelectedMed(tguserID int) (int, error) {
 	var medicamentID int

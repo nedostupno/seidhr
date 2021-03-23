@@ -7,6 +7,7 @@ type Users interface {
 	Check(tguserID int) (bool, error)
 	GetState(tguserID int) (string, error)
 	ChangeState(tguserID int, state string) error
+	GetChatID(tguserID int) (int, error)
 	IsHasSubsriptions(tguserID int) (bool, error)
 	GetSelectedMed(tguserID int) (int, error)
 	ChangeSelectedMed(medicamentID, tguserID int) error
@@ -23,6 +24,11 @@ type Medicaments interface {
 	GetTitle(medicamentID int) (string, error)
 	InitMedList(medLines []string) error
 	IsMedListExist() (bool, error)
+	AreTheAnySubscriptions() (bool, error)
+	GetAllMedicamentsWithSub() ([]int, error)
+	GetAvailability(medicamentID int) (bool, error)
+	ChangeAvailability(medicamentID int, value bool) error
+	GetSubscribers(medicamentID int) ([]int, error)
 }
 
 type Repository struct {
