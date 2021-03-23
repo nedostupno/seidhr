@@ -47,7 +47,7 @@ func Run() {
 		log.Fatalf("%+v", err)
 	} else {
 
-		bot.Debug = true
+		bot.Debug = false
 
 		// Поулчаем инфу о состоянии нашего вебхука
 		// Выводим в консоль последнюю возникшую ошибку

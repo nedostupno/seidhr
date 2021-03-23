@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/jmoiron/sqlx"
@@ -136,7 +135,6 @@ func (u *UserPostgres) Subscribe(tguserID int, medicamentID int) error {
 	tx.MustExec("INSERT INTO subscription (tguser_id, medicament_id) VALUES ($1, $2)", tguserID, medicamentID)
 	err := tx.Commit()
 	if err != nil {
-		err := fmt.Errorf("Запрос к базе данных для оформления пописки закончился ошибкой")
 		return err
 	}
 	return nil
@@ -148,7 +146,6 @@ func (u *UserPostgres) Unsubscribe(tguserID int, medicamentID int) error {
 	tx.MustExec("DELETE FROM subscription WHERE tguser_id = $1 AND medicament_id = $2", tguserID, medicamentID)
 	err := tx.Commit()
 	if err != nil {
-		err := fmt.Errorf("Запрос к базе данных для отмены подписки закончился ошибкой")
 		return err
 	}
 	return nil
