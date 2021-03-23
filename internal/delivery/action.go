@@ -349,10 +349,10 @@ func BackToHome(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *H
 
 		h.services.Users.ChangeState(tguserID, "Home")
 
-		//msg, newKeyboard, newText, err := ListSubscriptions(callbackQuery)
-		//if err != nil {
-		//	return nil, nil, nil, err
-		//}
+		if err := ListSubscriptions(callbackQuery, bot, h); err != nil {
+			return err
+		}
+
 		return nil
 	}
 
