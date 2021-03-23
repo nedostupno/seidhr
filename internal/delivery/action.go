@@ -13,7 +13,7 @@ var msg, newKeyboard, newText tgbotapi.Chattable
 
 // SendMessage - принимаем на вход интерфейсы описывающие наше сообщение,
 //а так же объект бота и выполняем отправку
-func SendMessage(msg tgbotapi.Chattable, newKeyboard tgbotapi.Chattable, newText tgbotapi.Chattable, bot tgbotapi.BotAPI) error {
+func SendMessage(msg tgbotapi.Chattable, newKeyboard tgbotapi.Chattable, newText tgbotapi.Chattable, bot *tgbotapi.BotAPI) error {
 
 	if msg != nil {
 		if _, err := bot.Send(msg); err != nil {
@@ -34,7 +34,7 @@ func SendMessage(msg tgbotapi.Chattable, newKeyboard tgbotapi.Chattable, newText
 	return nil
 }
 
-func Start(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) error {
+func Start(message *tgbotapi.Message, bot *tgbotapi.BotAPI, h *Handler) error {
 
 	tguserID := message.From.ID
 	chatID := message.Chat.ID
@@ -103,7 +103,7 @@ func Start(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) error {
 	return nil
 }
 
-func DefaultCommand(message *tgbotapi.Message, bot tgbotapi.BotAPI) error {
+func DefaultCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) error {
 	chatID := message.Chat.ID
 	msgConf := tgbotapi.NewMessage(chatID, "К сожалению, я так не умею")
 
@@ -118,7 +118,7 @@ func DefaultCommand(message *tgbotapi.Message, bot tgbotapi.BotAPI) error {
 	return nil
 }
 
-func Help(message *tgbotapi.Message, bot tgbotapi.BotAPI) error {
+func Help(message *tgbotapi.Message, bot *tgbotapi.BotAPI) error {
 	chatID := message.Chat.ID
 
 	msg = tgbotapi.NewMessage(chatID, "---Необольшая справка---\n\nС помощью данного бота вы можете проверить наличие льготных лекарств в аптеках Санкт-Петербурга, а так же подписаться на необходимые вам лекарства, и получать уведомления, как только они появятся в аптеках.\n\nЧто бы подписаться на какое-либо лекарство, вам необходимо нажать на кнопку <Проверить лекарство> и ввести его название, после чего в появившемся сообщении вы увидите всю информацию о нем, а так же кнопку <Подписаться>, если вы, конечно, уже не подписаны на него\n\nПосле того, как вы подписались на ваше первое лекарство, в главном меню появится кнопка <Подписки>, нажав на которую вы увидите все ваши подписки, узнать наличие, а так же отменить подписку.")
@@ -132,7 +132,7 @@ func Help(message *tgbotapi.Message, bot tgbotapi.BotAPI) error {
 	return nil
 }
 
-func DefaultMsg(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) error {
+func DefaultMsg(message *tgbotapi.Message, bot *tgbotapi.BotAPI, h *Handler) error {
 
 	tguserID := message.From.ID
 	chatID := message.Chat.ID
@@ -174,7 +174,7 @@ func DefaultMsg(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) erro
 	return nil
 }
 
-func SearchMed(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+func SearchMed(callbackQuery *tgbotapi.CallbackQuery, bot *tgbotapi.BotAPI, h *Handler) error {
 	tguserID := callbackQuery.From.ID
 	chatID := callbackQuery.Message.Chat.ID
 	msgID := callbackQuery.Message.MessageID
@@ -196,7 +196,7 @@ func SearchMed(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Ha
 	return nil
 }
 
-func SearchMedAct(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) error {
+func SearchMedAct(message *tgbotapi.Message, bot *tgbotapi.BotAPI, h *Handler) error {
 	medTitle := message.Text
 	tguserID := message.From.ID
 	chatID := message.Chat.ID
@@ -327,7 +327,7 @@ func SearchMedAct(message *tgbotapi.Message, bot tgbotapi.BotAPI, h *Handler) er
 }
 
 // BackToHome - возвращает пользователя на домашнюю страницу
-func BackToHome(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+func BackToHome(callbackQuery *tgbotapi.CallbackQuery, bot *tgbotapi.BotAPI, h *Handler) error {
 
 	tguserID := callbackQuery.From.ID
 	chatID := callbackQuery.Message.Chat.ID
@@ -387,7 +387,7 @@ func BackToHome(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *H
 }
 
 // ListSubscriptions - отправляет пользователю сообщение с информацией о всех его подписках
-func ListSubscriptions(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+func ListSubscriptions(callbackQuery *tgbotapi.CallbackQuery, bot *tgbotapi.BotAPI, h *Handler) error {
 
 	tguserID := callbackQuery.From.ID
 	chatID := callbackQuery.Message.Chat.ID
@@ -414,7 +414,7 @@ func ListSubscriptions(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAP
 }
 
 // Subscribe - оформляет подписку на лекарство для данного пользователя
-func Subscribe(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+func Subscribe(callbackQuery *tgbotapi.CallbackQuery, bot *tgbotapi.BotAPI, h *Handler) error {
 
 	tguserID := callbackQuery.From.ID
 	chatID := callbackQuery.Message.Chat.ID
@@ -445,7 +445,7 @@ func Subscribe(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Ha
 	return nil
 }
 
-func Unsubscribe(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+func Unsubscribe(callbackQuery *tgbotapi.CallbackQuery, bot *tgbotapi.BotAPI, h *Handler) error {
 
 	tguserID := callbackQuery.From.ID
 	chatID := callbackQuery.Message.Chat.ID
@@ -494,8 +494,8 @@ func Unsubscribe(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *
 	return nil
 }
 
-// InterceptMedicament - перехватывает id лекарств
-func InterceptMedicament(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+// InterceptMedicament - перехватывает id лекарства при нажатии на кнопку в разделе Подписки
+func InterceptMedicament(callbackQuery *tgbotapi.CallbackQuery, bot *tgbotapi.BotAPI, h *Handler) error {
 
 	tguserID := callbackQuery.From.ID
 	chatID := callbackQuery.Message.Chat.ID

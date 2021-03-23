@@ -56,15 +56,15 @@ func (h *Handler) HandleMessage(message *tgbotapi.Message) error {
 		cmd := message.Command()
 		switch cmd {
 		case "start":
-			if err := Start(message, *h.bot, h); err != nil {
+			if err := Start(message, h.bot, h); err != nil {
 				return err
 			}
 		case "help":
-			if err := Help(message, *h.bot); err != nil {
+			if err := Help(message, h.bot); err != nil {
 				return err
 			}
 		default:
-			if err := DefaultCommand(message, *h.bot); err != nil {
+			if err := DefaultCommand(message, h.bot); err != nil {
 				return err
 			}
 		}
@@ -78,13 +78,13 @@ func (h *Handler) HandleMessage(message *tgbotapi.Message) error {
 
 		switch state {
 		case "SearchMed":
-			if err := SearchMedAct(message, *h.bot, h); err != nil {
+			if err := SearchMedAct(message, h.bot, h); err != nil {
 				return err
 			}
 
 			return nil
 		default:
-			if err := DefaultMsg(message, *h.bot, h); err != nil {
+			if err := DefaultMsg(message, h.bot, h); err != nil {
 				return err
 			}
 		}
@@ -101,29 +101,29 @@ func (h *Handler) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) err
 
 	switch callbackQuery.Data {
 	case "searchMed":
-		if err := SearchMed(callbackQuery, *h.bot, h); err != nil {
+		if err := SearchMed(callbackQuery, h.bot, h); err != nil {
 			return err
 		}
 	case "backToHome":
-		if err := BackToHome(callbackQuery, *h.bot, h); err != nil {
+		if err := BackToHome(callbackQuery, h.bot, h); err != nil {
 			return err
 		}
 	case "subscribe":
-		if err := Subscribe(callbackQuery, *h.bot, h); err != nil {
+		if err := Subscribe(callbackQuery, h.bot, h); err != nil {
 			return err
 		}
 	case "unsubscribe":
-		if err := Unsubscribe(callbackQuery, *h.bot, h); err != nil {
+		if err := Unsubscribe(callbackQuery, h.bot, h); err != nil {
 			return err
 		}
 	case "lsSub":
-		if err := ListSubscriptions(callbackQuery, *h.bot, h); err != nil {
+		if err := ListSubscriptions(callbackQuery, h.bot, h); err != nil {
 			return err
 		}
 	// В default обрабатываются нажатия на кнопки с лекарствами, которые
 	// предлагаются пользователю при просмотре подписок.
 	default:
-		if err := InterceptMedicament(callbackQuery, *h.bot, h); err != nil {
+		if err := InterceptMedicament(callbackQuery, h.bot, h); err != nil {
 			return err
 		}
 	}
