@@ -72,3 +72,13 @@ func (m *MedPostgres) IsMedListExist() (bool, error) {
 	}
 	return isExist, nil
 }
+
+// GetMedTitle - находит название лекарства по его id
+func (m *MedPostgres) GetTitle(medicamentID int) (string, error) {
+	var medTitle string
+	err := m.db.QueryRow("SELECT title FROM medicament WHERE id = $1", medicamentID).Scan(&medTitle)
+	if err != nil {
+		return "", err
+	}
+	return medTitle, nil
+}

@@ -20,6 +20,7 @@ type Medicaments interface {
 	IsExist(medName string) (bool, error)
 	GetTrueName(medName string) (string, error)
 	GetID(medTitle string) (int, error)
+	GetTitle(medicamentID int) (string, error)
 	InitMedList(medLines []string) error
 	IsMedListExist() (bool, error)
 }

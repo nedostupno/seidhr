@@ -34,6 +34,10 @@ func (s *MedService) GetID(medTitle string) (int, error) {
 	return s.repo.GetID(medTitle)
 }
 
+func (s *MedService) GetTitle(medicamentID int) (string, error) {
+	return s.repo.GetTitle(medicamentID)
+}
+
 func (s *MedService) InitMedList(medLines []string) error {
 	return s.repo.InitMedList(medLines)
 }

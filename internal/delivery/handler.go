@@ -120,6 +120,12 @@ func (h *Handler) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) err
 		if err := ListSubscriptions(callbackQuery, *h.bot, h); err != nil {
 			return err
 		}
+	// В default обрабатываются нажатия на кнопки с лекарствами, которые
+	// предлагаются пользователю при просмотре подписок.
+	default:
+		if err := InterceptMedicament(callbackQuery, *h.bot, h); err != nil {
+			return err
+		}
 	}
 	return nil
 }

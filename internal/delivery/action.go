@@ -1,6 +1,8 @@
 package delivery
 
 import (
+	"strconv"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/nedostupno/seidhr/keyboards"
 )
@@ -484,6 +486,68 @@ func Unsubscribe(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *
 	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, keyboards.HomeKeyboard)
 
 	newText = tgbotapi.NewEditMessageText(chatID, msgID, "Поздравляю, подписка отменена.\n\nХотите еще что-нибудь?")
+
+	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// InterceptMedicament - перехватывает id лекарств
+func InterceptMedicament(callbackQuery *tgbotapi.CallbackQuery, bot tgbotapi.BotAPI, h *Handler) error {
+
+	tguserID := callbackQuery.From.ID
+	chatID := callbackQuery.Message.Chat.ID
+	msgID := callbackQuery.Message.MessageID
+
+	h.services.Users.ChangeState(tguserID, "ViewSubMed")
+
+	medicamentID, err := strconv.Atoi(callbackQuery.Data)
+	if err != nil {
+		return err
+	}
+
+	title, err := h.services.Medicaments.GetTitle(medicamentID)
+	if err != nil {
+		return err
+	}
+
+	err = h.services.Users.ChangeSelectedMed(medicamentID, tguserID)
+	if err != nil {
+		return err
+	}
+
+	// Отправляем запрос
+	medResp, err := h.services.Medicaments.ReqMedInfo(title)
+	if err != nil {
+		return err
+	}
+
+	isErr := h.services.Medicaments.IsErrExistInJSON(medResp)
+	if isErr == true {
+
+		msg = nil
+
+		newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, keyboards.ViewMedKeyboard)
+
+		newText = tgbotapi.NewEditMessageText(chatID, msgID, "К сожалению данного лекарства сейчас нет ни в одной аптеке, но так как вы подписаны, мы уведомим вас, как только оно появится в аптеках")
+
+		if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	// Парсим json и компануем текст сообщения
+	msgText := h.services.Medicaments.ParseJSON(medResp)
+
+	msg = nil
+
+	newKeyboard = tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, keyboards.ViewMedKeyboard)
+
+	newText = tgbotapi.NewEditMessageText(chatID, msgID, msgText)
 
 	if err := SendMessage(msg, newKeyboard, newText, bot); err != nil {
 		return err
